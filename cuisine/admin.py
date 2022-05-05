@@ -20,7 +20,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'time_minutes', 'price', 'link')
     list_display_links = ('id', 'title')
     search_fields = ('title', 'tags', 'ingredients')
-    list_filter = ('title', 'tags', 'ingredients')
+    list_filter = ('tags', )
 
 
 admin.site.register(Tag, TagAdmin)
