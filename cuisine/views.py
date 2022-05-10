@@ -1,6 +1,8 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from .models import Tag, Ingredient, Recipe
 from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer, RecipeDetailSerializer
 
@@ -51,3 +53,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Creates a new recipe object"""
         serializer.save(user=self.request.user)
+
+    @action(methods=['POST'], detail=True, url_path='upload-image')

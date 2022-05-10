@@ -1,7 +1,6 @@
-import os
-import uuid
 from django.conf import settings
 from django.db import models
+from .managers import CuisineManager
 
 
 class Tag(models.Model):
@@ -40,6 +39,9 @@ class Recipe(models.Model):
     link = models.CharField(max_length=255, blank=True)
     ingredients = models.ManyToManyField('Ingredient')
     tags = models.ManyToManyField('Tag')
+    image = models.ImageField(null=True, upload_to='recipe_image')
+
+    objects = CuisineManager()
 
     def __str__(self):
         return self.title
