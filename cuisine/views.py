@@ -1,3 +1,4 @@
+"""Views for the Cuisine app."""
 from rest_framework import viewsets, mixins, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
@@ -8,12 +9,18 @@ from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer, 
 
 
 class BaseAttributesViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
-    authentication_classes = (TokenAuthentication,)
+    """Generic class to be used by tags and ingredients"""
+    # authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         """Returns objects for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+        assigned_only = bool(int(self.request.GET.get('assigned_only', 0)))
+        queryset = self.queryset
+
+        if assigned_only:
+            queryset = self.queryset.filter(recipe__isnull=False)
+        return queryset.filter(user=self.request.user).order_by('-name').distinct()
 
     def perform_create(self, serializer):
         """Creates a new attribute object"""
@@ -36,7 +43,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Manages recipes in the database"""
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    # authentication_classes = (TokenAuthentication,)
+    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def _params_to_ints(self, qs):
@@ -51,13 +58,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if tags:
             tag_ids = self._params_to_ints(tags)
-            queryset = self.queryset.filter(tags__id__in=tag_ids)
+            queryset = self.queryset.filter(tags__id__in=tag_ids).distinct()
 
         if ingredients:
             ingredients_ids = self._params_to_ints(ingredients)
             queryset = self.queryset.filter(
                 ingredients__id__in=ingredients_ids
-            )
+            ).distinct()
 
         return queryset.filter(user=self.request.user).order_by('-id')
 

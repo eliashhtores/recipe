@@ -1,3 +1,4 @@
+""""Models for the cuisine app."""
 from django.conf import settings
 from django.db import models
 from .managers import CuisineManager
